@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 curl = "0.4.34"
+umya-spreadsheet = "0.1.19-beta"
 
 [[bin]]
 name = "CovidCounter"
@@ -17,6 +18,5 @@ tokio = { version = "0.2.21", features = ["macros", "rt-threaded", "blocking", "
 warp = "0.2.3"
 thiserror = "1.0.20"
 chrono = { version = "0.4.13", features = ["serde"] }
-xlsxwriter = "0.3.1"
 uuid = { version = "0.8", features = ["v4"] }
 lazy_static = "=1.4.0"
