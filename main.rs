@@ -28,7 +28,8 @@ fn main(){
     use std::io::{stdout, Write, Read};
     use curl::easy::Easy;
     let mut covid = Easy::new();
-    covid.url("https://www.rust-lang.org/").unwrap();
+    let mut state :&str;
+    covid.url(String::from("https://covidtracking.com/data/download").unwrap();
     covid.write_function(|data| {
         stdout().write_all(data).unwrap();
         Ok(data.len())
