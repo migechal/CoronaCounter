@@ -1,2 +1,4 @@
 /target
 state.txt
+cargo.lock
+cases.csv

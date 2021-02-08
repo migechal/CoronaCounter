@@ -1,3 +1,16 @@
+#![allow(non_snake_case)]
+
+use error_chain::error_chain;
+use std::path::Path;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::stdin;
+error_chain! {
+    foreign_links {
+        Io(std::io::Error);
+        HttpRequest(reqwest::Error);
+    }
+}
 
 struct FileDo;
 impl FileDo{
@@ -30,23 +43,34 @@ impl FileDo{
 }
 
 
-fn main(){
-    use std::io::{stdin, stdout, Write, Read};
-    use curl::easy::Easy;
-    let mut covid = Easy::new();
+
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let _comma: i8 = 21;
+
     if FileDo::create_if_not_exist("state.txt".to_owned()) == 1{
         println!("Enter your state name:  ");
         let mut state_name = String::new();
         stdin().read_line(&mut state_name).expect("Not a string");
         FileDo::write_to_file("state.txt".to_owned(), state_name.to_lowercase());
     }
-    let state :String = FileDo::read_from_file("state.txt".to_owned()).to_lowercase();
 
-    let link :String = "https://covidtracking.com/data/download".to_owned() + &state + "-history.cvs";
+    
+    let state = FileDo::read_from_file("state.txt".to_owned()).to_lowercase();
 
-    covid.url(&link).unwrap();
-    covid.write_function(|data| {
-        stdout().write_all(data).unwrap();
-        Ok(data.len())
-    }).unwrap();
-}   
+    let target = "https://covidtracking.com/data/download/all-states-history.csv";
+
+    let response = reqwest::get(target).await?;
+
+    let path = Path::new("./cases.csv");
+
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}", why),
+        Ok(file) => file,
+    };
+    
+    let content =  response.text().await?;
+    file.write_all(content.as_bytes())?;
+    Ok(())
+}
