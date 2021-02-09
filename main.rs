@@ -73,5 +73,7 @@ async fn main() -> Result<()> {
     let content =  response.text().await?;
     file.write_all(content.as_bytes())?;
     
+    println!("{}", FileDo::read_from_file("./cases.csv".to_string()));
+
     Ok(())
 }
