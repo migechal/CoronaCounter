@@ -15,12 +15,10 @@ error_chain! {
 struct FileDo;
 impl FileDo{
     fn write_to_file(file: String, text: String){
-        use std::io::Write;
         let mut file = std::fs::File::create(file).expect("create failed");
         file.write_all(text.as_bytes()).expect("write failed");
     }
     fn read_from_file(file: String) -> String{
-        use std::io::Read;
         let mut file = std::fs::File::open(file).unwrap(); 
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
@@ -59,9 +57,11 @@ async fn main() -> Result<()> {
     
     let state = FileDo::read_from_file("state.txt".to_owned()).to_lowercase();
 
-    let target = "https://covidtracking.com/data/download/all-states-history.csv";
+    let target = "https://covidtracking.com/data/download/".to_string() + &state + "-history.csv";
 
-    let response = reqwest::get(target).await?;
+    println!("{}", target);
+
+    let response = reqwest::get(&target).await?;
 
     let path = Path::new("./cases.csv");
 
@@ -72,5 +72,6 @@ async fn main() -> Result<()> {
     
     let content =  response.text().await?;
     file.write_all(content.as_bytes())?;
+    
     Ok(())
 }
