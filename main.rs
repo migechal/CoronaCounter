@@ -1,4 +1,5 @@
 use curl::easy::Easy;
+use run_script::ScriptOptions;
 use std::fs::{remove_file, File};
 use std::io::{prelude::*, stdin, ErrorKind};
 use std::str;
@@ -39,13 +40,15 @@ impl FileDo {
 }
 
 fn main() -> std::io::Result<()> {
-    if FileDo::create_if_not_exist("./state.txt".to_owned()) == 1 {
+    let file_name = "./state.txt".to_string();
+
+    if FileDo::create_if_not_exist(file_name.to_owned()) == 1 {
         println!("Enter your state name:  ");
 
         let mut state_name = String::new();
         stdin().read_line(&mut state_name).expect("Not a string");
-
-        FileDo::write_to_file("./state.txt".to_owned(), state_name.to_lowercase());
+        state_name.pop(); // remove newline
+        FileDo::write_to_file(file_name.to_owned(), state_name.to_lowercase());
     }
 
     let state = FileDo::read_from_file("./state.txt".to_owned()).to_lowercase();
@@ -72,11 +75,23 @@ fn main() -> std::io::Result<()> {
 
     FileDo::write_to_file(path.to_string(), data_from_web);
 
+    let options = ScriptOptions::new();
+
+    let args = vec![];
+
     if std::path::Path::new(&path).exists() {
-        println!("{}", FileDo::read_from_file("./cases.csv".to_string()));
+        let (_code, output, _error) = run_script::run(
+            r#"
+            Rscript GetData.R
+           "#,
+            &args,
+            &options,
+        )
+        .unwrap();
+        println!("Their are: {} cases in the state of {}", output, state);
         Ok(())
     } else {
-        //        println!("Error! File {} not found. (This issue is most likely not caused by you, please report it at https://github.com/migechal/CoronaCounter/issues", path);
+        println!("Error! File {} not found. (This issue is most likely not caused by you, please report it at https://github.com/migechal/CoronaCounter/issues", path);
         Err(std::io::Error::new(ErrorKind::NotFound, path))
     }
 }

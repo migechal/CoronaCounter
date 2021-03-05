@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 curl = { version = "0.4.34"}
-
+run_script = "*"
 [[bin]]
 name = "covid_counter"
 path = "main.rs"
