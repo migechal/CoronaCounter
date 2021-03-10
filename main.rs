@@ -17,11 +17,17 @@ impl FileDo {
         file.read_to_string(&mut contents).unwrap();
         return contents;
     }
-    fn _delete_file(file: String) {
+    fn exists(file: String) -> bool {
+        if !std::path::Path::new(&file).exists() {
+            return false;
+        }
+        return true;
+    }
+    fn delete_file(file: String) {
         remove_file(file).expect("Could not remove file");
     }
     fn create_if_not_exist(file: String) -> u8 {
-        if !std::path::Path::new(&file).exists() {
+        if !FileDo::exists(file) {
             File::create(file).expect("Failed to create file");
             1
         } else {
@@ -41,8 +47,18 @@ impl FileDo {
 
 fn main() -> std::io::Result<()> {
     let file_name = "./state.txt".to_string();
+    let beg_text: String = if FileDo::exists(file_name.to_owned()) {
+        "Find covid press (f)".to_string()
+    } else {
+        "".to_string()
+    };
+    println!("{} | Press {} to enter new state:  ", beg_text, "n");
 
-    if FileDo::create_if_not_exist(file_name.to_owned()) == 1 {
+    let mut opt: String = String::new();
+
+    stdin().read_line(&mut opt).expect("Not a char");
+
+    if FileDo::create_if_not_exist(file_name.to_owned()) == 1 || opt == "n" {
         println!("Enter your state name:  ");
 
         let mut state_name = String::new();
